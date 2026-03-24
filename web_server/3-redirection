@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Configures a new Ubuntu machine to redirect /redirect_me to a new URL
+
+# Update package list and install Nginx
+apt-get update -y
+apt-get install -y nginx
+
+# Create a basic index file with "Hello World!"
+echo "Hello World!" > /var/www/html/index.html
+
+# Use sed to insert the 301 redirect into the default config
+# We target the 'server_name _;' line and append the rewrite rule after it
+# The 'permanent' flag ensures it returns a 301 status code
+redirect_link="https://www.youtube.com/watch?v=QH2-TGUlwu4"
+sed -i "/server_name _;/a \\\trewrite ^/redirect_me/?$ $redirect_link permanent;" /etc/nginx/sites-available/default
+
+# Restart Nginx to apply changes
+service nginx restart
