@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Configures a new Ubuntu machine with HAProxy to load balance web-01 and web-02
+
+# 1. Update and Install HAProxy
+apt-get update -y
+apt-get install -y haproxy
+
+# 2. Enable HAProxy to be started by the init script
+# This ensures it can be managed via 'service haproxy start'
+echo "ENABLED=1" >> /etc/default/haproxy
+
+# 3. Configure HAProxy
+# Use a heredoc to append the frontend and backend configuration
+cat <<EOF >> /etc/haproxy/haproxy.cfg
+
+frontend alu_lb
+    bind *:80
+    default_backend alu_web_servers
+
+backend alu_web_servers
+    balance roundrobin
+    server 7053-web-01 52.91.174.142:80 check
+    server 7053-web-02 3.87.205.24:80 check
+EOF
+
+# 4. Restart the service to apply changes
+service haproxy restart
